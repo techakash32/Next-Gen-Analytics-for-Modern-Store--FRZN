@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FRZN. — ANALYTICS OPS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #f4f5f7;
+    --bg-dark: #ffffff;
+    --white: #ffffff;
+    --black: #111418;
+    --text: #111418;
+    --text-muted: #5a6370;
+    --ice: #1a7fd4;
+    --ice-dark: #1260a8;
+    --ice-light: #4fa3e8;
+    --border: #d8dde4;
+    --card-bg: #ffffff;
+    --red: #c0392b;
+    --green: #16a34a;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-body: 'Barlow', sans-serif;
+    --font-cond: 'Barlow Condensed', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-body); background: var(--bg); color: var(--text); overflow-x: hidden; }
+
+  /* NAV */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(255,255,255,0.97); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.09); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 64px; }
+  .nav-logo { font-family: var(--font-display); font-size: 28px; letter-spacing: 2px; color: var(--black); text-decoration: none; }
+  .nav-logo span { color: var(--ice); }
+  .nav-links { display: flex; gap: 8px; }
+  .nav-links a { font-family: var(--font-cond); font-size: 13px; font-weight: 600; letter-spacing: 2px; color: rgba(0,0,0,0.4); text-decoration: none; padding: 6px 12px; transition: color 0.2s; }
+  .nav-links a:hover, .nav-links a.active { color: var(--ice); }
+  .nav-right { display: flex; gap: 16px; align-items: center; }
+  .nav-right a { font-family: var(--font-cond); font-size: 12px; font-weight: 700; letter-spacing: 3px; color: rgba(0,0,0,0.4); text-decoration: none; border: 1px solid rgba(0,0,0,0.15); padding: 6px 12px; transition: all 0.2s; }
+  .nav-right a:hover { color: var(--ice); border-color: var(--ice); }
+
+  /* TICKER */
+  .ticker { background: #111418; padding: 8px 0; margin-top: 64px; overflow: hidden; white-space: nowrap; border-bottom: 1px solid rgba(0,0,0,0.08); }
+  .ticker-inner { display: inline-flex; gap: 60px; animation: ticker 30s linear infinite; font-family: var(--font-cond); font-size: 11px; font-weight: 600; letter-spacing: 3px; color: rgba(255,255,255,0.5); }
+  .ticker-inner span { color: var(--ice-light); }
+  @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+  /* HERO */
+  .analytics-hero { padding: 52px 60px 40px; border-bottom: 1px solid rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: flex-end; background: var(--white); }
+  .hero-left {}
+  .hero-badge { font-family: var(--font-cond); font-size: 11px; font-weight: 600; letter-spacing: 3px; color: rgba(0,0,0,0.35); border: 1px solid rgba(0,0,0,0.12); display: inline-block; padding: 4px 10px; margin-bottom: 16px; }
+  .hero-title { font-family: var(--font-display); font-size: clamp(56px,8vw,110px); line-height: 0.88; color: var(--black); }
+  .hero-title span { color: var(--ice); }
+  .hero-right { text-align: right; }
+  .hero-date { font-family: var(--font-cond); font-size: 11px; font-weight: 600; letter-spacing: 3px; color: rgba(0,0,0,0.35); margin-bottom: 8px; }
+  .refresh-btn { font-family: var(--font-cond); font-size: 11px; font-weight: 700; letter-spacing: 3px; color: var(--ice); border: 1px solid rgba(26,127,212,0.35); background: none; padding: 7px 14px; cursor: pointer; transition: all 0.2s; }
+  .refresh-btn:hover { background: rgba(26,127,212,0.07); }
+
+  /* LAYOUT */
+  .analytics-body { padding: 48px 60px; }
+
+  /* KPI CARDS */
+  .kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; margin-bottom: 48px; }
+  .kpi-card { background: var(--white); border: 1px solid var(--border); padding: 28px 24px; position: relative; overflow: hidden; }
+  .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--ice), transparent); opacity: 0.4; }
+  .kpi-label { font-family: var(--font-cond); font-size: 10px; font-weight: 700; letter-spacing: 3px; color: rgba(0,0,0,0.35); margin-bottom: 12px; }
+  .kpi-value { font-family: var(--font-display); font-size: 38px; color: var(--black); line-height: 1; margin-bottom: 8px; letter-spacing: 1px; }
+  .kpi-value.ice { color: var(--ice); }
+  .kpi-sub { font-family: var(--font-cond); font-size: 10px; font-weight: 600; letter-spacing: 2px; color: rgba(0,0,0,0.28); }
+  .kpi-icon { position: absolute; bottom: 16px; right: 20px; font-size: 24px; opacity: 0.06; color: var(--ice); }
+
+  /* SECTION HEADINGS */
+  .section-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .section-tag { font-family: var(--font-cond); font-size: 11px; font-weight: 700; letter-spacing: 4px; color: rgba(0,0,0,0.3); border-bottom: 1px solid rgba(0,0,0,0.09); padding-bottom: 12px; }
+  .section-title { font-family: var(--font-display); font-size: 32px; color: var(--black); letter-spacing: 1px; }
+
+  /* CHART CARDS */
+  .chart-grid-2 { display: grid; grid-template-columns: 1.6fr 1fr; gap: 2px; margin-bottom: 2px; }
+  .chart-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-bottom: 48px; }
+  .chart-card { background: var(--white); border: 1px solid var(--border); padding: 32px 28px; }
+  .chart-label { font-family: var(--font-cond); font-size: 10px; font-weight: 700; letter-spacing: 3px; color: rgba(0,0,0,0.28); margin-bottom: 8px; border: 1px solid rgba(0,0,0,0.1); display: inline-block; padding: 3px 8px; }
+  .chart-title { font-family: var(--font-display); font-size: 28px; color: var(--black); margin-bottom: 24px; letter-spacing: 1px; }
+  .chart-wrap { position: relative; }
+
+  /* TABLES */
+  .table-section { margin-bottom: 48px; }
+  .data-table { width: 100%; border-collapse: collapse; }
+  .data-table th { font-family: var(--font-cond); font-size: 10px; font-weight: 700; letter-spacing: 3px; color: rgba(0,0,0,0.35); text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  .data-table td { font-family: var(--font-cond); font-size: 13px; font-weight: 600; letter-spacing: 0.5px; padding: 14px 16px; border-bottom: 1px solid rgba(0,0,0,0.05); color: rgba(0,0,0,0.75); }
+  .data-table tr:hover td { background: rgba(0,0,0,0.02); }
+  .data-table td.num { font-family: var(--font-display); font-size: 18px; color: var(--black); letter-spacing: 0; }
+  .data-table td.ice { color: var(--ice); }
+  .data-table td.green { color: var(--green); }
+  .data-table td.red { color: var(--red); }
+  .rank-num { font-family: var(--font-display); font-size: 14px; color: rgba(0,0,0,0.18); width: 32px; display: inline-block; }
+
+  /* STATUS BADGES */
+  .badge { font-family: var(--font-cond); font-size: 10px; font-weight: 700; letter-spacing: 2px; padding: 3px 8px; display: inline-block; }
+  .badge-delivered { background: rgba(22,163,74,0.1); color: var(--green); }
+  .badge-shipped    { background: rgba(26,127,212,0.1); color: var(--ice); }
+  .badge-processing { background: rgba(202,138,4,0.1); color: #b45309; }
+  .badge-pending    { background: rgba(0,0,0,0.06); color: rgba(0,0,0,0.45); }
+  .badge-cancelled  { background: rgba(192,57,43,0.1); color: var(--red); }
+
+  /* CLUSTER DOTS */
+  .cluster-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 8px; }
+  .dot-top  { background: var(--ice); }
+  .dot-mid  { background: #d97706; }
+  .dot-low  { background: rgba(0,0,0,0.2); }
+
+  /* SEGMENT BADGES */
+  .seg-high    { color: var(--ice); }
+  .seg-regular { color: #b45309; }
+  .seg-occ     { color: rgba(0,0,0,0.35); }
+
+  /* STOCK BAR */
+  .stock-bar-wrap { width: 80px; height: 4px; background: rgba(0,0,0,0.08); display: inline-block; vertical-align: middle; margin-right: 8px; }
+  .stock-bar { height: 100%; }
+
+  /* DONUT LEGEND */
+  .donut-legend { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+  .legend-row { display: flex; justify-content: space-between; align-items: center; }
+  .legend-label { display: flex; align-items: center; gap: 10px; font-family: var(--font-cond); font-size: 12px; font-weight: 600; letter-spacing: 2px; color: rgba(0,0,0,0.6); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .legend-val { font-family: var(--font-display); font-size: 18px; color: var(--black); }
+
+  /* LOADING */
+  .loading { font-family: var(--font-cond); font-size: 11px; font-weight: 600; letter-spacing: 3px; color: rgba(0,0,0,0.3); padding: 40px; text-align: center; }
+
+  @media (max-width: 1100px) {
+    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+    .chart-grid-2 { grid-template-columns: 1fr; }
+    .chart-grid-3 { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 700px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .chart-grid-3 { grid-template-columns: 1fr; }
+    .analytics-body { padding: 32px 24px; }
+    .analytics-hero { padding: 32px 24px; flex-direction: column; gap: 24px; align-items: flex-start; }
+    nav { padding: 0 16px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">FRZN<span>.</span></a>
+  <div class="nav-links">
+    <a href="/">[ SHOP ]</a>
+    <a href="/cart">[ CART ]</a>
+    <a href="/analytics" class="active">[ OPS ]</a>
+  </div>
+  <div class="nav-right">
+    <a href="/">← STOREFRONT</a>
+  </div>
+</nav>
+
+<div class="ticker">
+  <div class="ticker-inner">
+    <span>★</span> COLD OPS ANALYTICS <span>★</span> LIVE DATA <span>★</span> WINTER 2026 <span>★</span> FRZN STUDIO <span>★</span> VOL. 01
+    <span>★</span> COLD OPS ANALYTICS <span>★</span> LIVE DATA <span>★</span> WINTER 2026 <span>★</span> FRZN STUDIO <span>★</span> VOL. 01
+  </div>
+</div>
+
+<div class="analytics-hero">
+  <div class="hero-left">
+    <div class="hero-badge">[ ANALYTICS / COLD OPS DASHBOARD ]</div>
+    <div class="hero-title">COLD OPS<br><span>ANALYTICS</span></div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-date" id="liveDate">[ LOADING... ]</div>
+    <button class="refresh-btn" onclick="loadAll()">[ REFRESH DATA ↺ ]</button>
+  </div>
+</div>
+
+<div class="analytics-body">
+
+  <!-- KPI ROW -->
+  <div class="kpi-grid" id="kpiGrid">
+    <div class="kpi-card"><div class="kpi-label">[ TOTAL REVENUE ]</div><div class="kpi-value ice" id="kpiRevenue">—</div><div class="kpi-sub">ALL TIME / EXCL. CANCELLED</div><i class="fas fa-dollar-sign kpi-icon"></i></div>
+    <div class="kpi-card"><div class="kpi-label">[ TOTAL ORDERS ]</div><div class="kpi-value" id="kpiOrders">—</div><div class="kpi-sub">ALL STATUSES</div><i class="fas fa-box kpi-icon"></i></div>
+    <div class="kpi-card"><div class="kpi-label">[ CUSTOMERS ]</div><div class="kpi-value" id="kpiCustomers">—</div><div class="kpi-sub">REGISTERED</div><i class="fas fa-users kpi-icon"></i></div>
+    <div class="kpi-card"><div class="kpi-label">[ AVG ORDER VALUE ]</div><div class="kpi-value ice" id="kpiAvg">—</div><div class="kpi-sub">PER ORDER</div><i class="fas fa-chart-line kpi-icon"></i></div>
+    <div class="kpi-card"><div class="kpi-label">[ PRODUCTS ]</div><div class="kpi-value" id="kpiProducts">—</div><div class="kpi-sub">IN CATALOG</div><i class="fas fa-tshirt kpi-icon"></i></div>
+  </div>
+
+  <!-- STATUS MINI CARDS -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-bottom:48px;">
+    <div class="kpi-card" style="padding:20px 24px;">
+      <div class="kpi-label">[ DELIVERED ]</div>
+      <div class="kpi-value" id="kpiDelivered" style="color:var(--green);">—</div>
+    </div>
+    <div class="kpi-card" style="padding:20px 24px;">
+      <div class="kpi-label">[ SHIPPED ]</div>
+      <div class="kpi-value ice" id="kpiShipped">—</div>
+    </div>
+    <div class="kpi-card" style="padding:20px 24px;">
+      <div class="kpi-label">[ PENDING ]</div>
+      <div class="kpi-value" id="kpiPending" style="color:#b45309;">—</div>
+    </div>
+  </div>
+
+  <!-- CHARTS ROW 1: Revenue trend + Category donut -->
+  <div class="chart-grid-2" style="margin-bottom:2px;">
+    <div class="chart-card">
+      <div class="chart-label">[ 30 DAY VIEW ]</div>
+      <div class="chart-title">REVENUE TREND</div>
+      <div class="chart-wrap"><canvas id="revenueChart" height="180"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-label">[ BREAKDOWN ]</div>
+      <div class="chart-title">CATEGORY SALES</div>
+      <div class="chart-wrap" style="max-width:240px;margin:0 auto;"><canvas id="categoryChart" height="200"></canvas></div>
+      <div class="donut-legend" id="categoryLegend"></div>
+    </div>
+  </div>
+
+  <!-- CHARTS ROW 2: Order status + Orders trend -->
+  <div class="chart-grid-3">
+    <div class="chart-card">
+      <div class="chart-label">[ ORDER STATUS ]</div>
+      <div class="chart-title">STATUS MIX</div>
+      <div class="chart-wrap" style="max-width:200px;margin:0 auto;"><canvas id="statusChart" height="200"></canvas></div>
+      <div class="donut-legend" id="statusLegend"></div>
+    </div>
+    <div class="chart-card" style="grid-column:span 2;">
+      <div class="chart-label">[ DAILY ]</div>
+      <div class="chart-title">ORDERS PER DAY</div>
+      <div class="chart-wrap"><canvas id="ordersChart" height="160"></canvas></div>
+    </div>
+  </div>
+
+  <!-- TOP PRODUCTS TABLE -->
+  <div class="table-section">
+    <div class="section-row">
+      <div>
+        <div class="section-tag">[ PRODUCT PERFORMANCE ]</div>
+        <div class="section-title">TOP PRODUCTS</div>
+      </div>
+    </div>
+    <div class="chart-card" style="padding:0;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>#</th><th>PRODUCT</th><th>CATEGORY</th><th>UNITS SOLD</th><th>REVENUE</th><th>STOCK</th><th>PRICE</th>
+          </tr>
+        </thead>
+        <tbody id="topProductsBody"><tr><td colspan="7" class="loading">[ LOADING DATA... ]</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- K-MEANS PRODUCT CLUSTERING -->
+  <div class="table-section">
+    <div class="section-row">
+      <div>
+        <div class="section-tag">[ K-MEANS / 3 CLUSTERS ]</div>
+        <div class="section-title">PRODUCT CLUSTERING</div>
+      </div>
+      <div style="display:flex;gap:20px;align-items:center;">
+        <span style="font-family:var(--font-cond);font-size:11px;letter-spacing:2px;color:rgba(0,0,0,0.4);"><span class="cluster-dot dot-top"></span>TOP PERFORMER</span>
+        <span style="font-family:var(--font-cond);font-size:11px;letter-spacing:2px;color:rgba(0,0,0,0.4);"><span class="cluster-dot dot-mid"></span>MID PERFORMER</span>
+        <span style="font-family:var(--font-cond);font-size:11px;letter-spacing:2px;color:rgba(0,0,0,0.4);"><span class="cluster-dot dot-low"></span>LOW PERFORMER</span>
+      </div>
+    </div>
+    <div class="chart-card" style="padding:0;">
+      <table class="data-table">
+        <thead>
+          <tr><th>CLUSTER</th><th>PRODUCT</th><th>SKU</th><th>UNITS SOLD</th><th>REVENUE</th><th>NORM. UNITS</th><th>NORM. REV</th></tr>
+        </thead>
+        <tbody id="clusterBody"><tr><td colspan="7" class="loading">[ RUNNING K-MEANS... ]</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- STOCK STATUS -->
+  <div class="table-section">
+    <div class="section-row">
+      <div>
+        <div class="section-tag">[ INVENTORY ]</div>
+        <div class="section-title">STOCK STATUS</div>
+      </div>
+    </div>
+    <div class="chart-card" style="padding:0;">
+      <table class="data-table">
+        <thead>
+          <tr><th>PRODUCT</th><th>SKU</th><th>STOCK LEVEL</th><th>STATUS</th></tr>
+        </thead>
+        <tbody id="stockBody"><tr><td colspan="4" class="loading">[ LOADING... ]</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CUSTOMER SEGMENTATION -->
+  <div class="table-section">
+    <div class="section-row">
+      <div>
+        <div class="section-tag">[ K-MEANS / 30 DAY ]</div>
+        <div class="section-title">CUSTOMER SEGMENTS</div>
+      </div>
+      <div style="display:flex;gap:20px;">
+        <span style="font-family:var(--font-cond);font-size:11px;letter-spacing:2px;" class="seg-high">● HIGH VALUE</span>
+        <span style="font-family:var(--font-cond);font-size:11px;letter-spacing:2px;" class="seg-regular">● REGULAR</span>
+        <span style="font-family:var(--font-cond);font-size:11px;letter-spacing:2px;" class="seg-occ">● OCCASIONAL</span>
+      </div>
+    </div>
+    <div class="chart-card" style="padding:0;">
+      <table class="data-table">
+        <thead>
+          <tr><th>CUSTOMER</th><th>CITY</th><th>ORDERS (30D)</th><th>TOTAL SPENT</th><th>AVG ORDER</th><th>SEGMENT</th></tr>
+        </thead>
+        <tbody id="customerBody"><tr><td colspan="6" class="loading">[ LOADING... ]</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- RECENT ORDERS -->
+  <div class="table-section">
+    <div class="section-row">
+      <div>
+        <div class="section-tag">[ LIVE FEED ]</div>
+        <div class="section-title">RECENT ORDERS</div>
+      </div>
+    </div>
+    <div class="chart-card" style="padding:0;">
+      <table class="data-table">
+        <thead>
+          <tr><th>#</th><th>CUSTOMER</th><th>CITY</th><th>AMOUNT</th><th>STATUS</th><th>PAYMENT</th><th>DATE</th></tr>
+        </thead>
+        <tbody id="recentOrdersBody"><tr><td colspan="7" class="loading">[ LOADING... ]</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const ICE   = '#1a7fd4';
+  const AMBER = '#d97706';
+  const GREEN = '#16a34a';
+  const RED   = '#c0392b';
+  const DIM   = 'rgba(0,0,0,0.15)';
+
+  const fmt  = n => '$' + Number(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+  const fmtK = n => Number(n) >= 1000 ? '$' + (n/1000).toFixed(1) + 'K' : fmt(n);
+
+  document.getElementById('liveDate').textContent = '[ ' + new Date().toDateString().toUpperCase() + ' ]';
+
+  Chart.defaults.color = 'rgba(0,0,0,0.4)';
+  Chart.defaults.font.family = "'Barlow Condensed', sans-serif";
+  Chart.defaults.font.size   = 11;
+
+  const chartOpts = {
+    responsive: true,
+    plugins: { legend: { display: false }, tooltip: {
+      backgroundColor: '#ffffff', borderColor: ICE, borderWidth: 1,
+      titleColor: '#111418', bodyColor: '#5a6370',
+      titleFont: {family:"'Bebas Neue',sans-serif", size:16},
+      bodyFont:  {family:"'Barlow Condensed',sans-serif", size:12},
+      padding: 12
+    }},
+    scales: {
+      x: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: 'rgba(0,0,0,0.3)', maxTicksLimit: 7 } },
+      y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: 'rgba(0,0,0,0.3)' } }
+    }
+  };
+
+  let charts = {};
+
+  async function loadAll() {
+    document.getElementById('liveDate').textContent = '[ REFRESHING... ]';
+    await Promise.all([
+      loadSummary(), loadRevenueTrend(), loadCategoryChart(),
+      loadTopProducts(), loadStock(), loadClustering(),
+      loadCustomerClusters(), loadRecentOrders()
+    ]);
+    document.getElementById('liveDate').textContent = '[ ' + new Date().toDateString().toUpperCase() + ' ]';
+  }
+
+  async function loadSummary() {
+    const d = await fetch('/api/analytics/summary').then(r=>r.json());
+    document.getElementById('kpiRevenue').textContent   = fmtK(d.revenue);
+    document.getElementById('kpiOrders').textContent    = d.orders;
+    document.getElementById('kpiCustomers').textContent = d.customers;
+    document.getElementById('kpiAvg').textContent       = fmt(d.avg_order);
+    document.getElementById('kpiProducts').textContent  = d.products;
+    document.getElementById('kpiDelivered').textContent = d.delivered;
+    document.getElementById('kpiShipped').textContent   = d.shipped;
+    document.getElementById('kpiPending').textContent   = d.pending;
+
+    const statusData = {
+      labels: ['DELIVERED','SHIPPED','PROCESSING','PENDING','CANCELLED'],
+      values: [d.delivered, d.shipped, d.orders - d.delivered - d.shipped - d.pending, d.pending, 0],
+      colors: [GREEN, ICE, AMBER, 'rgba(0,0,0,0.2)', RED]
+    };
+    renderDonut('statusChart','statusLegend', statusData.labels, statusData.values, statusData.colors);
+  }
+
+  async function loadRevenueTrend() {
+    const rows = await fetch('/api/analytics/order-trends').then(r=>r.json());
+    const labels   = rows.map(r => r.date.slice(5));
+    const revenue  = rows.map(r => r.revenue || 0);
+
+    if (charts.revenue) charts.revenue.destroy();
+    charts.revenue = new Chart(document.getElementById('revenueChart'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'REVENUE', data: revenue,
+          borderColor: ICE, backgroundColor: 'rgba(26,127,212,0.07)',
+          borderWidth: 2, pointRadius: 2, pointBackgroundColor: ICE,
+          fill: true, tension: 0.4
+        }]
+      },
+      options: { ...chartOpts, scales: { ...chartOpts.scales, y: { ...chartOpts.scales.y, ticks: { ...chartOpts.scales.y.ticks, callback: v => fmtK(v) } } } }
+    });
+  }
+
+  async function loadCategoryChart() {
+    const rows   = await fetch('/api/analytics/category-sales').then(r=>r.json());
+    const labels = rows.map(r => r.category.toUpperCase());
+    const values = rows.map(r => r.revenue);
+    const colors = [ICE, AMBER, GREEN, RED, DIM];
+    renderDonut('categoryChart','categoryLegend', labels, values, colors.slice(0, labels.length));
+  }
+
+  function renderDonut(canvasId, legendId, labels, values, colors) {
+    if (charts[canvasId]) charts[canvasId].destroy();
+    charts[canvasId] = new Chart(document.getElementById(canvasId), {
+      type: 'doughnut',
+      data: { labels, datasets: [{ data: values, backgroundColor: colors, borderColor: '#ffffff', borderWidth: 3, hoverOffset: 6 }] },
+      options: { responsive: true, cutout: '68%', plugins: { legend: { display: false }, tooltip: {
+        backgroundColor:'#ffffff', borderColor: ICE, borderWidth:1,
+        titleColor:'#111418', bodyColor:'#5a6370',
+        callbacks: { label: ctx => ` ${ctx.label}: ${fmtK(ctx.raw)}` }
+      }}}
+    });
+    const legend = document.getElementById(legendId);
+    legend.innerHTML = labels.map((l,i) => `
+      <div class="legend-row">
+        <span class="legend-label"><span class="legend-dot" style="background:${colors[i]}"></span>${l}</span>
+        <span class="legend-val">${fmtK(values[i])}</span>
+      </div>`).join('');
+  }
+
+  async function loadTopProducts() {
+    const rows = await fetch('/api/analytics/top-products').then(r=>r.json());
+    const tbody = document.getElementById('topProductsBody');
+    if (!rows.length) { tbody.innerHTML = '<tr><td colspan="7" class="loading">[ NO DATA ]</td></tr>'; return; }
+    tbody.innerHTML = rows.map((r,i) => `
+      <tr>
+        <td><span class="rank-num">${String(i+1).padStart(2,'0')}</span></td>
+        <td>${r.name.toUpperCase()}</td>
+        <td style="color:rgba(0,0,0,0.35);">${r.category.toUpperCase()}</td>
+        <td class="num">${r.units_sold}</td>
+        <td class="num ice">${fmtK(r.revenue)}</td>
+        <td><span class="stock-bar-wrap"><span class="stock-bar" style="width:${Math.min(r.stock,100)}%;background:${r.stock<=15?RED:r.stock<=30?AMBER:ICE};"></span></span>${r.stock}</td>
+        <td class="ice">${fmt(r.price)}</td>
+      </tr>`).join('');
+  }
+
+  async function loadStock() {
+    const rows  = await fetch('/api/analytics/stock-status').then(r=>r.json());
+    const tbody = document.getElementById('stockBody');
+    tbody.innerHTML = rows.map(r => {
+      const sc = r.status === 'Out of Stock' ? RED : r.status === 'Low Stock' ? AMBER : r.status === 'Medium Stock' ? ICE : GREEN;
+      const badgeClass = r.status === 'Out of Stock' ? 'badge-cancelled' : r.status === 'Low Stock' ? 'badge-processing' : r.status === 'Medium Stock' ? 'badge-shipped' : 'badge-delivered';
+      return `<tr>
+        <td>${r.name.toUpperCase()}</td>
+        <td style="color:rgba(0,0,0,0.35);">${r.sku || '—'}</td>
+        <td><span class="stock-bar-wrap"><span class="stock-bar" style="width:${Math.min(r.stock/50*100,100)}%;background:${sc};"></span></span>${r.stock}</td>
+        <td><span class="badge ${badgeClass}" style="border:1px solid ${sc}30;color:${sc};">${r.status.toUpperCase()}</span></td>
+      </tr>`;
+    }).join('');
+  }
+
+  async function loadClustering() {
+    const data  = await fetch('/api/analytics/clustering').then(r=>r.json());
+    const tbody = document.getElementById('clusterBody');
+    if (!data.products || !data.products.length) {
+      tbody.innerHTML = '<tr><td colspan="7" class="loading">[ NO DATA ]</td></tr>'; return;
+    }
+    const sorted = [...data.products].sort((a,b) => {
+      const order = {'Top Performer':0,'Mid Performer':1,'Low Performer':2};
+      return order[a.cluster_label] - order[b.cluster_label];
+    });
+    tbody.innerHTML = sorted.map(r => {
+      const dotClass = r.cluster_label === 'Top Performer' ? 'dot-top' : r.cluster_label === 'Mid Performer' ? 'dot-mid' : 'dot-low';
+      const clrClass = r.cluster_label === 'Top Performer' ? 'ice' : '';
+      const clrStyle = r.cluster_label === 'Low Performer' ? 'color:rgba(0,0,0,0.3)' : '';
+      return `<tr>
+        <td><span class="cluster-dot ${dotClass}"></span><span class="${clrClass}" style="${clrStyle}">${r.cluster_label.toUpperCase()}</span></td>
+        <td>${r.name.toUpperCase()}</td>
+        <td style="color:rgba(0,0,0,0.35);">${r.sku || '—'}</td>
+        <td class="num">${r.units_sold}</td>
+        <td class="num ${clrClass}" style="${clrStyle}">${fmtK(r.revenue)}</td>
+        <td style="color:rgba(0,0,0,0.4);">${r.normalized_units}%</td>
+        <td style="color:rgba(0,0,0,0.4);">${r.normalized_revenue}%</td>
+      </tr>`;
+    }).join('');
+  }
+
+  async function loadCustomerClusters() {
+    const data  = await fetch('/api/analytics/customer-clusters').then(r=>r.json());
+    const tbody = document.getElementById('customerBody');
+    if (!data.customers || !data.customers.length) {
+      tbody.innerHTML = '<tr><td colspan="6" class="loading">[ NO ACTIVE CUSTOMERS IN WINDOW ]</td></tr>'; return;
+    }
+    tbody.innerHTML = data.customers.map(c => {
+      const segClass = c.segment === 'High Value' ? 'seg-high' : c.segment === 'Regular Buyer' ? 'seg-regular' : 'seg-occ';
+      return `<tr>
+        <td>${c.name.toUpperCase()}</td>
+        <td style="color:rgba(0,0,0,0.35);">${c.city.toUpperCase()}</td>
+        <td class="num">${c.order_count}</td>
+        <td class="num ice">${fmtK(c.total_spent)}</td>
+        <td>${fmt(c.avg_order_value)}</td>
+        <td class="${segClass}">${c.segment.toUpperCase()}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  async function loadRecentOrders() {
+    const rows  = await fetch('/api/analytics/recent-orders').then(r=>r.json());
+    const tbody = document.getElementById('recentOrdersBody');
+    tbody.innerHTML = rows.map(r => {
+      const sc = r.status === 'delivered' ? 'badge-delivered' : r.status === 'shipped' ? 'badge-shipped' : r.status === 'processing' ? 'badge-processing' : r.status === 'cancelled' ? 'badge-cancelled' : 'badge-pending';
+      return `<tr>
+        <td class="ice">#${String(r.id).padStart(4,'0')}</td>
+        <td>${r.customer_name.toUpperCase()}</td>
+        <td style="color:rgba(0,0,0,0.35);">${r.city.toUpperCase()}</td>
+        <td class="num ice">${fmt(r.total_amount)}</td>
+        <td><span class="badge ${sc}">${r.status.toUpperCase()}</span></td>
+        <td style="color:rgba(0,0,0,0.35);">${r.payment_method.toUpperCase()}</td>
+        <td style="color:rgba(0,0,0,0.25);font-size:11px;">${r.created_at.slice(0,10)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  loadAll();
+</script>
+</body>
+</html>

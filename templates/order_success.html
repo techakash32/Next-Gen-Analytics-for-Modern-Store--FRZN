@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FRZN. — ORDER CONFIRMED</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  :root {
+    --bg: #eef0f2; --white: #ffffff; --black: #0a0c0e;
+    --text: #111418; --text-muted: #5a6370; --ice: #4ab8ff; --ice-dark: #2196d9;
+    --border: #d0d5db; --card-bg: #f5f7f9;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-body: 'Barlow', sans-serif;
+    --font-cond: 'Barlow Condensed', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-body); background: var(--bg); color: var(--text); overflow-x: hidden; }
+
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(238,240,242,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 64px; }
+  .nav-logo { font-family: var(--font-display); font-size: 28px; letter-spacing: 2px; color: var(--black); text-decoration: none; }
+  .nav-logo span { color: var(--ice); }
+  .nav-links { display: flex; gap: 8px; }
+  .nav-links a { font-family: var(--font-cond); font-size: 13px; font-weight: 600; letter-spacing: 2px; color: var(--text); text-decoration: none; padding: 6px 12px; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--ice); }
+
+  .ticker { background: var(--black); color: var(--white); padding: 8px 0; margin-top: 64px; overflow: hidden; white-space: nowrap; }
+  .ticker-inner { display: inline-flex; gap: 60px; animation: ticker 30s linear infinite; font-family: var(--font-cond); font-size: 11px; font-weight: 600; letter-spacing: 3px; }
+  .ticker-inner span { color: var(--ice); }
+  @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+  /* HERO CONFIRM */
+  .confirm-hero {
+    min-height: 45vh;
+    background: linear-gradient(160deg, #1a2535 0%, #0d1825 50%, #0a1520 100%);
+    display: flex; align-items: flex-end;
+    padding: 60px;
+    position: relative; overflow: hidden;
+  }
+  .confirm-watermark {
+    position: absolute; right: -20px; top: 50%; transform: translateY(-50%);
+    font-family: var(--font-display);
+    font-size: clamp(100px,15vw,220px);
+    color: rgba(74,184,255,0.08);
+    line-height: 1; pointer-events: none; white-space: nowrap;
+  }
+  .confirm-badge {
+    position: absolute; top: 40px; left: 60px;
+    font-family: var(--font-cond); font-size: 11px; font-weight: 600; letter-spacing: 3px;
+    color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.2); padding: 4px 10px;
+  }
+  .confirm-order-num {
+    position: absolute; top: 40px; right: 60px;
+    font-family: var(--font-cond); font-size: 11px; font-weight: 700; letter-spacing: 3px;
+    color: var(--ice); border: 1px solid rgba(74,184,255,0.3); padding: 4px 10px;
+  }
+  .confirm-content { position: relative; z-index: 2; }
+  .confirm-label { font-family: var(--font-cond); font-size: 11px; font-weight: 600; letter-spacing: 3px; color: rgba(255,255,255,0.5); margin-bottom: 12px; }
+  .confirm-title { font-family: var(--font-display); font-size: clamp(56px,9vw,130px); line-height: 0.88; color: var(--white); }
+  .confirm-title span { color: var(--ice); }
+  .confirm-sub { font-family: var(--font-cond); font-size: 12px; letter-spacing: 3px; color: rgba(255,255,255,0.5); margin-top: 16px; }
+
+  /* BODY */
+  .confirm-body { display: grid; grid-template-columns: 1fr 400px; gap: 0; }
+
+  /* ORDER DETAILS */
+  .order-details { padding: 52px 60px; border-right: 1px solid var(--border); }
+  .details-section { margin-bottom: 48px; }
+  .section-tag { font-family: var(--font-cond); font-size: 11px; font-weight: 700; letter-spacing: 4px; color: var(--text-muted); border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 28px; }
+
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .info-item {}
+  .info-label { font-family: var(--font-cond); font-size: 10px; font-weight: 700; letter-spacing: 3px; color: var(--text-muted); margin-bottom: 6px; }
+  .info-value { font-family: var(--font-cond); font-size: 16px; font-weight: 700; letter-spacing: 1px; color: var(--black); }
+  .info-value.ice { color: var(--ice); }
+
+  /* STATUS TRACK */
+  .status-track { display: flex; align-items: center; gap: 0; margin: 28px 0; }
+  .status-step { display: flex; flex-direction: column; align-items: center; gap: 8px; flex: 1; }
+  .status-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 12px; background: var(--white); color: var(--text-muted); }
+  .status-dot.active { border-color: var(--ice); background: var(--ice); color: var(--white); }
+  .status-dot.done { border-color: var(--black); background: var(--black); color: var(--white); }
+  .status-line { flex: 1; height: 1px; background: var(--border); align-self: start; margin-top: 14px; }
+  .status-line.done { background: var(--black); }
+  .status-label { font-family: var(--font-cond); font-size: 9px; font-weight: 700; letter-spacing: 2px; color: var(--text-muted); text-align: center; }
+  .status-label.active { color: var(--black); }
+
+  /* ITEMS */
+  .order-item { display: flex; gap: 20px; align-items: center; padding: 20px 0; border-bottom: 1px solid var(--border); }
+  .order-item:last-child { border-bottom: none; }
+  .order-item-img { width: 70px; height: 90px; object-fit: cover; object-position: center top; background: var(--card-bg); flex-shrink: 0; }
+  .order-item-details { flex: 1; }
+  .order-item-name { font-family: var(--font-display); font-size: 22px; color: var(--black); letter-spacing: 1px; }
+  .order-item-meta { font-family: var(--font-cond); font-size: 11px; font-weight: 400; letter-spacing: 2px; color: var(--text-muted); margin-top: 4px; }
+  .order-item-price { font-family: var(--font-display); font-size: 24px; color: var(--black); }
+
+  /* SIDEBAR */
+  .confirm-sidebar { padding: 52px 40px; background: var(--white); border-left: 1px solid var(--border); }
+  .sidebar-tag { font-family: var(--font-cond); font-size: 11px; font-weight: 700; letter-spacing: 4px; color: var(--text-muted); border: 1px solid var(--border); display: inline-block; padding: 4px 10px; margin-bottom: 28px; }
+  .sidebar-total-label { font-family: var(--font-display); font-size: 38px; color: var(--black); line-height: 1; margin-bottom: 4px; }
+  .sidebar-total { font-family: var(--font-display); font-size: 58px; color: var(--black); line-height: 1; margin-bottom: 4px; }
+  .sidebar-total span { color: var(--ice); }
+  .sidebar-note { font-family: var(--font-cond); font-size: 11px; font-weight: 400; letter-spacing: 2px; color: var(--text-muted); margin-bottom: 36px; }
+
+  .summary-row { display: flex; justify-content: space-between; margin-bottom: 14px; }
+  .summary-row-label { font-family: var(--font-cond); font-size: 11px; font-weight: 600; letter-spacing: 2px; color: var(--text-muted); }
+  .summary-row-value { font-family: var(--font-cond); font-size: 13px; font-weight: 700; color: var(--black); }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+  .btn-primary { background: var(--black); color: var(--white); font-family: var(--font-cond); font-size: 13px; font-weight: 700; letter-spacing: 4px; border: none; padding: 16px 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s; text-decoration: none; width: 100%; margin-bottom: 12px; }
+  .btn-primary:hover { background: #222; }
+  .btn-outline { background: transparent; color: var(--black); font-family: var(--font-cond); font-size: 12px; font-weight: 700; letter-spacing: 3px; border: 1.5px solid var(--black); padding: 14px 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; text-decoration: none; width: 100%; }
+  .btn-outline:hover { background: var(--black); color: var(--white); }
+
+  @media (max-width: 900px) {
+    .confirm-body { grid-template-columns: 1fr; }
+    .order-details { padding: 32px 24px; border-right: none; }
+    .confirm-sidebar { border-left: none; border-top: 1px solid var(--border); }
+    .confirm-hero { padding: 40px 24px 48px; }
+    .info-grid { grid-template-columns: 1fr; }
+    nav { padding: 0 16px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">FRZN<span>.</span></a>
+  <div class="nav-links">
+    <a href="/#index">[ INDEX ]</a>
+    <a href="/#catalog">[ CATALOG ]</a>
+    <a href="/#puffers">[ PUFFERS ]</a>
+    <a href="/#shells">[ SHELLS ]</a>
+  </div>
+  <div class="nav-right">
+    <a href="/cart" style="font-family:var(--font-cond);font-size:13px;font-weight:600;letter-spacing:2px;color:var(--text);text-decoration:none;">[ CART ]</a>
+  </div>
+</nav>
+
+<div class="ticker">
+  <div class="ticker-inner">
+    <span>★</span> ORDER CONFIRMED <span>★</span> COLD GEAR ON THE WAY <span>★</span> BUILT FOR COLD <span>★</span> WINTER 2026
+    <span>★</span> ORDER CONFIRMED <span>★</span> COLD GEAR ON THE WAY <span>★</span> BUILT FOR COLD <span>★</span> WINTER 2026
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="confirm-hero">
+  <div class="confirm-watermark">ORDER/OK</div>
+  <div class="confirm-badge">[ COLD OPS FULFILLMENT ]</div>
+  <div class="confirm-order-num">[ ORDER #{{ "%04d"|format(order.id) }} ]</div>
+  <div class="confirm-content">
+    <div class="confirm-label">[ STATUS: PROCESSING ]</div>
+    <div class="confirm-title">ORDER<br><span>CONFIRMED</span></div>
+    <div class="confirm-sub">[ THANK YOU, {{ order.customer_name|upper }} — YOUR COLD GEAR IS BEING PROCESSED. ]</div>
+  </div>
+</div>
+
+<div class="confirm-body">
+
+  <!-- DETAILS -->
+  <div class="order-details">
+
+    <!-- Status track -->
+    <div class="details-section">
+      <div class="section-tag">[ ORDER STATUS ]</div>
+      <div class="status-track">
+        <div class="status-step">
+          <div class="status-dot done"><i class="fas fa-check"></i></div>
+          <div class="status-label active">PLACED</div>
+        </div>
+        <div class="status-line done"></div>
+        <div class="status-step">
+          <div class="status-dot active"><i class="fas fa-cog"></i></div>
+          <div class="status-label active">PROCESSING</div>
+        </div>
+        <div class="status-line"></div>
+        <div class="status-step">
+          <div class="status-dot"><i class="fas fa-box"></i></div>
+          <div class="status-label">PACKED</div>
+        </div>
+        <div class="status-line"></div>
+        <div class="status-step">
+          <div class="status-dot"><i class="fas fa-truck"></i></div>
+          <div class="status-label">SHIPPED</div>
+        </div>
+        <div class="status-line"></div>
+        <div class="status-step">
+          <div class="status-dot"><i class="fas fa-home"></i></div>
+          <div class="status-label">DELIVERED</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order info -->
+    <div class="details-section">
+      <div class="section-tag">[ ORDER INFORMATION ]</div>
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-label">[ ORDER NUMBER ]</div>
+          <div class="info-value ice">#{{ "%04d"|format(order.id) }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">[ STATUS ]</div>
+          <div class="info-value">{{ order.status|upper }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">[ CUSTOMER ]</div>
+          <div class="info-value">{{ order.customer_name|upper }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">[ EMAIL ]</div>
+          <div class="info-value" style="font-size:13px;">{{ order.email|upper }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">[ PAYMENT ]</div>
+          <div class="info-value">{{ order.payment_method|upper }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">[ SHIP TO ]</div>
+          <div class="info-value" style="font-size:13px;">{{ order.city|upper }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Items -->
+    <div class="details-section">
+      <div class="section-tag">[ ORDER ITEMS ]</div>
+      {% for item in items %}
+      <div class="order-item">
+        <img src="{{ item.image_url }}" alt="{{ item.name }}" class="order-item-img" onerror="this.style.background='#e8ecf0'">
+        <div class="order-item-details">
+          <div class="order-item-name">{{ item.name }}</div>
+          <div class="order-item-meta">{{ item.sku }} / SIZE: {{ item.size or 'M' }} / QTY: {{ item.quantity }}</div>
+        </div>
+        <div class="order-item-price">${{ "%.2f"|format(item.price * item.quantity) }}</div>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="confirm-sidebar">
+    <div class="sidebar-tag">[ ORDER TOTAL ]</div>
+    <div class="sidebar-total-label">TOTAL</div>
+    <div class="sidebar-total">${{ "%.0f"|format(order.total_amount) }}<span>.{{ "%02d"|format((order.total_amount % 1 * 100)|int) }}</span></div>
+    <div class="sidebar-note">[ INCLUSIVE OF FREE SHIPPING ]</div>
+
+    <div class="summary-row">
+      <span class="summary-row-label">ORDER ID</span>
+      <span class="summary-row-value" style="color:var(--ice);">#{{ "%04d"|format(order.id) }}</span>
+    </div>
+    <div class="summary-row">
+      <span class="summary-row-label">PAYMENT</span>
+      <span class="summary-row-value">{{ order.payment_method|upper }}</span>
+    </div>
+    <div class="summary-row">
+      <span class="summary-row-label">SHIPPING</span>
+      <span class="summary-row-value" style="color:var(--ice);">FREE</span>
+    </div>
+    <div class="summary-row">
+      <span class="summary-row-label">ESTIMATED DELIVERY</span>
+      <span class="summary-row-value">5–7 DAYS</span>
+    </div>
+    <hr class="divider">
+
+    <a href="/#catalog" class="btn-primary">CONTINUE SHOPPING &nbsp;↗</a>
+    <a href="/" class="btn-outline">← BACK TO INDEX</a>
+  </div>
+
+</div>
+
+</body>
+</html>

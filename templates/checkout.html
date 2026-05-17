@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FRZN. — CHECKOUT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  :root {
+    --bg: #eef0f2; --white: #ffffff; --black: #0a0c0e;
+    --text: #111418; --text-muted: #5a6370; --ice: #4ab8ff; --ice-dark: #2196d9;
+    --border: #d0d5db; --card-bg: #f5f7f9; --red: #8b1a2f;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-body: 'Barlow', sans-serif;
+    --font-cond: 'Barlow Condensed', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-body); background: var(--bg); color: var(--text); overflow-x: hidden; }
+
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(238,240,242,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 64px; }
+  .nav-logo { font-family: var(--font-display); font-size: 28px; letter-spacing: 2px; color: var(--black); text-decoration: none; }
+  .nav-logo span { color: var(--ice); }
+  .nav-links { display: flex; gap: 8px; }
+  .nav-links a { font-family: var(--font-cond); font-size: 13px; font-weight: 600; letter-spacing: 2px; color: var(--text); text-decoration: none; padding: 6px 12px; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--ice); }
+  .cart-btn { display: flex; align-items: center; gap: 8px; font-family: var(--font-cond); font-size: 13px; font-weight: 600; letter-spacing: 2px; color: var(--text); text-decoration: none; }
+  .cart-count { background: var(--ice); color: #fff; width: 20px; height: 20px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+
+  .ticker { background: var(--black); color: var(--white); padding: 8px 0; margin-top: 64px; overflow: hidden; white-space: nowrap; }
+  .ticker-inner { display: inline-flex; gap: 60px; animation: ticker 30s linear infinite; font-family: var(--font-cond); font-size: 11px; font-weight: 600; letter-spacing: 3px; }
+  .ticker-inner span { color: var(--ice); }
+  @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+  .page-header { padding: 60px 60px 40px; border-bottom: 1px solid var(--border); }
+  .page-label { font-family: var(--font-cond); font-size: 11px; font-weight: 600; letter-spacing: 3px; color: var(--text-muted); border: 1px solid var(--border); display: inline-block; padding: 4px 10px; margin-bottom: 16px; }
+  .page-title { font-family: var(--font-display); font-size: clamp(56px,8vw,110px); line-height: 0.9; color: var(--black); }
+  .page-title span { color: var(--ice); }
+
+  /* BREADCRUMB */
+  .breadcrumb { padding: 20px 60px; border-bottom: 1px solid var(--border); display: flex; gap: 8px; align-items: center; }
+  .crumb { font-family: var(--font-cond); font-size: 11px; font-weight: 600; letter-spacing: 2px; color: var(--text-muted); text-decoration: none; }
+  .crumb.active { color: var(--black); }
+  .crumb-sep { color: var(--border); font-size: 14px; }
+
+  /* CHECKOUT LAYOUT */
+  .checkout-layout { display: grid; grid-template-columns: 1fr 420px; gap: 0; min-height: 60vh; }
+
+  /* FORM */
+  .checkout-form { padding: 48px 60px; border-right: 1px solid var(--border); }
+  .form-section { margin-bottom: 48px; }
+  .form-section-label { font-family: var(--font-cond); font-size: 11px; font-weight: 700; letter-spacing: 4px; color: var(--text-muted); border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 28px; display: flex; align-items: center; gap: 12px; }
+  .form-section-num { font-family: var(--font-display); font-size: 28px; color: var(--ice); line-height: 1; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 8px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-label { font-family: var(--font-cond); font-size: 10px; font-weight: 700; letter-spacing: 3px; color: var(--text-muted); }
+  .form-input { border: 1.5px solid var(--border); background: var(--white); padding: 13px 16px; font-family: var(--font-cond); font-size: 14px; font-weight: 600; letter-spacing: 1px; color: var(--text); outline: none; transition: border-color 0.2s; }
+  .form-input:focus { border-color: var(--black); }
+  .form-input::placeholder { color: var(--border); font-weight: 400; }
+
+  /* PAYMENT METHODS */
+  .payment-options { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .payment-option { position: relative; }
+  .payment-option input { position: absolute; opacity: 0; }
+  .payment-option label { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 8px; border: 1.5px solid var(--border); cursor: pointer; transition: all 0.2s; font-family: var(--font-cond); font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--text-muted); }
+  .payment-option label i { font-size: 20px; }
+  .payment-option input:checked + label { border-color: var(--black); background: var(--black); color: var(--white); }
+  .payment-option label:hover { border-color: var(--black); }
+
+  /* ORDER REVIEW */
+  .order-review { padding: 48px 40px; background: var(--white); border-left: 1px solid var(--border); position: sticky; top: 64px; align-self: start; }
+  .review-label { font-family: var(--font-cond); font-size: 11px; font-weight: 700; letter-spacing: 4px; color: var(--text-muted); margin-bottom: 28px; border: 1px solid var(--border); display: inline-block; padding: 4px 10px; }
+  .review-title { font-family: var(--font-display); font-size: 38px; color: var(--black); line-height: 1; margin-bottom: 28px; }
+
+  .review-item { display: flex; gap: 16px; align-items: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .review-item:last-of-type { border-bottom: none; }
+  .review-img { width: 60px; height: 80px; object-fit: cover; object-position: center top; background: var(--card-bg); flex-shrink: 0; }
+  .review-details { flex: 1; }
+  .review-name { font-family: var(--font-cond); font-size: 14px; font-weight: 700; letter-spacing: 1px; color: var(--black); }
+  .review-meta { font-family: var(--font-cond); font-size: 11px; font-weight: 400; letter-spacing: 2px; color: var(--text-muted); margin-top: 4px; }
+  .review-price { font-family: var(--font-display); font-size: 22px; color: var(--black); }
+
+  .review-divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+  .review-row { display: flex; justify-content: space-between; margin-bottom: 12px; }
+  .review-row-label { font-family: var(--font-cond); font-size: 11px; font-weight: 600; letter-spacing: 2px; color: var(--text-muted); }
+  .review-row-value { font-family: var(--font-cond); font-size: 13px; font-weight: 700; color: var(--black); }
+  .review-total-num { font-family: var(--font-display); font-size: 48px; color: var(--black); line-height: 1; margin: 8px 0 28px; }
+  .review-total-num span { color: var(--ice); }
+
+  .btn-primary { background: var(--black); color: var(--white); font-family: var(--font-cond); font-size: 13px; font-weight: 700; letter-spacing: 4px; border: none; padding: 17px 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s, transform 0.15s; width: 100%; margin-bottom: 12px; }
+  .btn-primary:hover { background: #222; transform: translateY(-1px); }
+  .btn-outline { background: transparent; color: var(--black); font-family: var(--font-cond); font-size: 12px; font-weight: 700; letter-spacing: 3px; border: 1.5px solid var(--black); padding: 14px 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; text-decoration: none; width: 100%; }
+  .btn-outline:hover { background: var(--black); color: var(--white); }
+  .secure-note { font-family: var(--font-cond); font-size: 10px; font-weight: 600; letter-spacing: 3px; color: var(--text-muted); margin-top: 16px; display: flex; gap: 6px; align-items: center; }
+
+  @media (max-width: 900px) {
+    .checkout-layout { grid-template-columns: 1fr; }
+    .checkout-form { padding: 32px 24px; border-right: none; }
+    .order-review { border-left: none; border-top: 1px solid var(--border); position: static; }
+    .page-header { padding: 40px 24px 32px; }
+    .breadcrumb { padding: 16px 24px; }
+    .form-grid { grid-template-columns: 1fr; }
+    .payment-options { grid-template-columns: repeat(2, 1fr); }
+    nav { padding: 0 16px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">FRZN<span>.</span></a>
+  <div class="nav-links">
+    <a href="/#index">[ INDEX ]</a>
+    <a href="/#catalog">[ CATALOG ]</a>
+    <a href="/#puffers">[ PUFFERS ]</a>
+    <a href="/#shells">[ SHELLS ]</a>
+  </div>
+  <div class="nav-right">
+    <a href="/cart" class="cart-btn">
+      <i class="fas fa-shopping-cart"></i>
+      CART <span class="cart-count">{{ items|length }}</span>
+    </a>
+  </div>
+</nav>
+
+<div class="ticker">
+  <div class="ticker-inner">
+    <span>★</span> SECURE CHECKOUT <span>★</span> FREE WORLDWIDE SHIPPING <span>★</span> WINTER 2026 <span>★</span> VOL. 01
+    <span>★</span> SECURE CHECKOUT <span>★</span> FREE WORLDWIDE SHIPPING <span>★</span> WINTER 2026 <span>★</span> VOL. 01
+  </div>
+</div>
+
+<div class="page-header">
+  <div class="page-label">[ SECURE CHECKOUT ]</div>
+  <div class="page-title">CHECK<br><span>OUT</span></div>
+</div>
+
+<div class="breadcrumb">
+  <a href="/cart" class="crumb">[ CART ]</a>
+  <span class="crumb-sep">/</span>
+  <span class="crumb active">[ CHECKOUT ]</span>
+  <span class="crumb-sep">/</span>
+  <span class="crumb">[ CONFIRMATION ]</span>
+</div>
+
+<div class="checkout-layout">
+
+  <!-- FORM -->
+  <div class="checkout-form">
+    <form method="POST" action="/checkout">
+
+      <!-- Contact -->
+      <div class="form-section">
+        <div class="form-section-label">
+          <span class="form-section-num">01</span>
+          CONTACT INFORMATION
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">[ FULL NAME ]</label>
+            <input class="form-input" type="text" name="name" placeholder="KAI BLACKWOOD" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">[ EMAIL ADDRESS ]</label>
+            <input class="form-input" type="email" name="email" placeholder="KAI@FRZN.IO" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">[ PHONE (OPTIONAL) ]</label>
+            <input class="form-input" type="tel" name="phone" placeholder="+1 212 000 0000">
+          </div>
+        </div>
+      </div>
+
+      <!-- Shipping -->
+      <div class="form-section">
+        <div class="form-section-label">
+          <span class="form-section-num">02</span>
+          SHIPPING ADDRESS
+        </div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label class="form-label">[ STREET ADDRESS ]</label>
+            <input class="form-input" type="text" name="address" placeholder="487 PIER AVE" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">[ CITY ]</label>
+            <input class="form-input" type="text" name="city" placeholder="BROOKLYN" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">[ ZIP / POSTAL CODE ]</label>
+            <input class="form-input" type="text" name="zip" placeholder="11215">
+          </div>
+          <div class="form-group full">
+            <label class="form-label">[ COUNTRY ]</label>
+            <input class="form-input" type="text" name="country" placeholder="UNITED STATES" value="UNITED STATES">
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment -->
+      <div class="form-section">
+        <div class="form-section-label">
+          <span class="form-section-num">03</span>
+          PAYMENT METHOD
+        </div>
+        <div class="payment-options">
+          <div class="payment-option">
+            <input type="radio" name="payment" id="pay-card" value="card" checked>
+            <label for="pay-card"><i class="fas fa-credit-card"></i> CARD</label>
+          </div>
+          <div class="payment-option">
+            <input type="radio" name="payment" id="pay-paypal" value="paypal">
+            <label for="pay-paypal"><i class="fab fa-paypal"></i> PAYPAL</label>
+          </div>
+          <div class="payment-option">
+            <input type="radio" name="payment" id="pay-apple" value="apple_pay">
+            <label for="pay-apple"><i class="fab fa-apple-pay"></i> APPLE</label>
+          </div>
+          <div class="payment-option">
+            <input type="radio" name="payment" id="pay-google" value="google_pay">
+            <label for="pay-google"><i class="fab fa-google-pay"></i> GOOGLE</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hidden submit (triggered by review panel btn) -->
+      <button type="submit" id="submitBtn" style="display:none;"></button>
+    </form>
+  </div>
+
+  <!-- ORDER REVIEW -->
+  <div class="order-review">
+    <div class="review-label">[ ORDER REVIEW ]</div>
+    <div class="review-title">YOUR<br>ORDER</div>
+
+    {% for item in items %}
+    <div class="review-item">
+      <img src="{{ item.image_url }}" alt="{{ item.name }}" class="review-img" onerror="this.style.background='#e8ecf0'">
+      <div class="review-details">
+        <div class="review-name">{{ item.name }}</div>
+        <div class="review-meta">{{ item.sku }} / SIZE: {{ item.size or 'M' }} / ×{{ item.quantity }}</div>
+      </div>
+      <div class="review-price">${{ "%.2f"|format(item.price * item.quantity) }}</div>
+    </div>
+    {% endfor %}
+
+    <hr class="review-divider">
+    <div class="review-row">
+      <span class="review-row-label">SUBTOTAL</span>
+      <span class="review-row-value">${{ "%.2f"|format(total) }}</span>
+    </div>
+    <div class="review-row">
+      <span class="review-row-label">SHIPPING</span>
+      <span class="review-row-value" style="color:var(--ice);">FREE</span>
+    </div>
+    <hr class="review-divider">
+    <div class="review-row-label">[ TOTAL ]</div>
+    <div class="review-total-num">${{ "%.0f"|format(total) }}<span>.{{ "%02d"|format((total % 1 * 100)|int) }}</span></div>
+
+    {% if items %}
+    <button class="btn-primary" onclick="document.getElementById('submitBtn').click()">
+      PLACE ORDER &nbsp;↗
+    </button>
+    {% else %}
+    <a href="/#catalog" class="btn-primary">SHOP THE DROP &nbsp;↗</a>
+    {% endif %}
+    <a href="/cart" class="btn-outline">← BACK TO CART</a>
+
+    <div class="secure-note">
+      <i class="fas fa-lock"></i> SSL SECURED &nbsp;•&nbsp; 256-BIT ENCRYPTION
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
